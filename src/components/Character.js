@@ -1,26 +1,30 @@
 import React from 'react'
-import 'bootstrap/dist/css/bootstrap.min.css'
 
 class Character extends React.Component {
+	render() {
+    const isFavorite = this.props.favorites.find((favorite) => {
+      return (
+        favorite.fullName === this.props.name
+      )
+    })
 
-
-    render() {
-        return (
-            <>
-              
-                    <button
-                        onClick={this.props.handleClick}>FAV
-                    </button>
-                
-                <img src={this.props.image} />
-
-                <p>{this.props.name}</p>
-                <p>{this.props.title}</p>
-
-            </>
-
-        )
-    }
+		return(
+      <div className={`grid-item ${isFavorite ? 'favorite' : ''}`}>
+        <div>
+          <img src={this.props.image} alt={this.props.name} />
+          <h3>{this.props.name}</h3>
+        </div>
+        <p>{this.props.title}</p>
+        <button
+          onClick={() => {
+            this.props.toggleFavorite(this.props.name)
+          }}
+        >
+          {isFavorite ? 'Enlever des favoris' : 'Ajouter aux favoris'}
+        </button>
+      </div>
+		)
+	}
 }
 
 export default Character

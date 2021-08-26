@@ -1,57 +1,100 @@
 import React from 'react'
-import Character from "./components/Character"
-import 'bootstrap/dist/css/bootstrap.min.css'
+import Character from './components/Character'
 import "./styles/Design.css"
 
 class App extends React.Component {
-
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       characters: [],
-      favorites : []
+      continents: [],
+      favorites: [],
+      activeTab: "personnages"
     }
   }
 
-  handleFavoriteClick = (e) => {
-    console.log(e.target.innerText);
-    this.setState({characters: e.target.innerText})
-  }
-
-
-  componentDidMount = () => {
+  componentDidMount() {
     fetch("https://thronesapi.com/api/v2/Characters")
       .then(result => result.json())
-      .then((result) => {
-        console.log("Resulatat",result)
-        this.setState({characters: result })
+      .then(result => this.setState({ characters: result }))
+
+    fetch("https://thronesapi.com/api/v2/Continents")
+      .then(result => result.json())
+      .then(result => this.setState({ continents: result }))
+  }
+
+  toggleFavorite = (name) => {
+    // je regarde si mon personnage est dans les favoris
+    const favorite = this.state.favorites.find((element) => {
+      return (
+        element.fullName === name
+      )
+    })
+
+    const clonedFavorites = [...this.state.favorites]    
+    
+    if (favorite) {// si mon perso est dans les favoris, je le retire des favoris
+      const index = this.state.favorites.findIndex((element => {
+        return (
+          element.fullName === favorite.fullName
+        )
+      }))
+
+      clonedFavorites.splice(index, 1)
+      this.setState({ favorites: clonedFavorites })
+    } else {// si mon perso est pas dans les favoris, je l'ajoute dans les favoris
+      const character = this.state.characters.find((element) => {
+        return (
+          element.fullName === name
+        )
       })
+
+      this.setState({ favorites: [...clonedFavorites, character ] })
+    }
+
   }
 
-
-  render() {
-    console.log(this.state);
-    return (
+	render() {
+		return(
       <>
-      <h1>Game of thrones</h1>
+        <button onClick={() => { this.setState({ activeTab: "personnages" }) }}>
+          Personnages
+        </button>
+        <button onClick={() => { this.setState({ activeTab: "continents" }) }}>
+          Continents
+        </button>
 
-     <div>
-          {this.state.characters.map((result)  => {
+        <h1>Game of thrones</h1>
 
-            return (
-              <Character 
-              isSelected={this.state.favorites === "add"}
-              handleClick={this.handleFavoriteClick}
-              name={result.fullName} 
-              title={result.title} 
-              image={result.imageUrl} />
-            )
-          })}
-      </div>
+        <div className="grid">
+          {this.state.activeTab === 'personnages' ? (
+            <>
+              {this.state.characters.map((character) => {
+                return (
+                  <Character
+                    name={character.fullName}
+                    title={character.title}
+                    image={character.imageUrl}
+                    toggleFavorite={this.toggleFavorite}
+                    favorites={this.state.favorites}
+                  />
+                )
+              })}
+            </>
+          ) : (
+            <>
+              {this.state.continents.map((continent) => {
+                return (
+                  <p>{continent.name}</p>
+                )
+              })}
+            </>
+          )}
+        </div>
       </>
-    )
-  }
+		)
+	}
 }
 
 export default App
